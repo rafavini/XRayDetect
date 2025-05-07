@@ -1,0 +1,3 @@
+__pycache__/
+node_modules
+Model_VGG16.h5
