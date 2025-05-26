@@ -1,82 +1,116 @@
-"use client"
+"use client";
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { FormEvent, useState } from "react";
 
-const UploadImage = () => {
-    const [image, setImage] = useState<File | null>(null);
+export default function LoginCadastro() {
+    const [aba, setAba] = useState<"login" | "cadastro">("login");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [mensagem, setMensagem] = useState("");
     const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState(null);
 
-    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setImage(file);
-        }
-    };
-
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (!image) {
-            alert('Por favor, selecione uma imagem primeiro.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('imagem', image);
-
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
         setLoading(true);
+        setMensagem("");
+
+        const endpoint =
+            aba === "login"
+                ? "http://localhost:8000/api/login/"
+                : "http://localhost:8000/api/cadastrar/";
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/classificar/', {
-                method: 'POST',
-                body: formData,
+            const res = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
             });
 
+            const data = await res.json();
             if (res.ok) {
-                const data = await res.json();
-                setResponse(data);
+                localStorage.setItem("usuario", username); // Salva o nome
+                window.location.href = "/analise"; // Redireciona para a tela principal
             } else {
-                const errorData = await res.json();
-                setResponse(errorData);
+                setMensagem(data.error || "Erro ao autenticar.");
             }
-        } catch (error) {
-            console.error('Erro ao enviar a imagem:', error);
-            alert('Erro ao enviar a imagem. Tente novamente.');
+        } catch (err) {
+            setMensagem("Erro de conexão.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border">
-            <h1 className="text-2xl font-bold mb-4 text-center">Envie uma foto para classificação</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageChange} 
-                    className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200" 
-                />
-                <button 
-                    type="submit" 
-                    disabled={loading} 
-                    className={`w-full py-2 px-4 rounded-lg text-white font-semibold ${loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                    {loading ? 'Enviando...' : 'Enviar Imagem'}
-                </button>
-            </form>
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-pink-200 flex items-center justify-center px-4">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+                <h1 className="text-2xl font-bold text-center text-pink-600 mb-6">
+                    {aba === "login" ? "Entrar no sistema" : "Criar uma conta"}
+                </h1>
 
-            {response && (
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                    <h2 className="text-lg font-semibold mb-2">Resultado da classificação:</h2>
-                    <pre className="bg-white p-2 rounded text-sm overflow-x-auto">
-                        {JSON.stringify(response, null, 2)}
-                    </pre>
+                <div className="flex mb-6 border rounded-full overflow-hidden">
+                    <button
+                        onClick={() => setAba("login")}
+                        className={`flex-1 py-2 text-sm font-medium transition ${aba === "login"
+                            ? "bg-pink-500 text-white"
+                            : "bg-white text-pink-500 hover:bg-pink-50"
+                            }`}
+                    >
+                        Login
+                    </button>
+                    <button
+                        onClick={() => setAba("cadastro")}
+                        className={`flex-1 py-2 text-sm font-medium transition ${aba === "cadastro"
+                            ? "bg-pink-500 text-white"
+                            : "bg-white text-pink-500 hover:bg-pink-50"
+                            }`}
+                    >
+                        Cadastro
+                    </button>
                 </div>
-            )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input
+                        type="text"
+                        placeholder="Usuário"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    />
+                    <input
+                        type="password"
+                        placeholder="Senha"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    />
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-2 px-4 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg transition disabled:opacity-50"
+                    >
+                        {loading
+                            ? aba === "login"
+                                ? "Entrando..."
+                                : "Cadastrando..."
+                            : aba === "login"
+                                ? "Entrar"
+                                : "Cadastrar"}
+                    </button>
+                </form>
+
+                {mensagem && (
+                    <div
+                        className={`mt-4 text-sm text-center font-medium ${mensagem.toLowerCase().includes("sucesso") ||
+                            mensagem.toLowerCase().includes("bem")
+                            ? "text-green-600"
+                            : "text-red-600"
+                            }`}
+                    >
+                        {mensagem}
+                    </div>
+                )}
+            </div>
         </div>
     );
-};
-
-export default UploadImage;
+}

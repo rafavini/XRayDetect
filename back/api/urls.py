@@ -1,7 +1,9 @@
 from django.urls import path
 
-from .views import ClassificarImagem
+from .views import *
 
 urlpatterns = [
-    path('classificar/', ClassificarImagem.as_view(), name='classificar'),
+    path('classificar/', ClassificarMultiplasImagens.as_view(), name='classificar'),
+    path("login/", SimpleLoginView.as_view(), name="login"),
+    path("cadastrar/", SimpleRegisterView.as_view()),
 ]
