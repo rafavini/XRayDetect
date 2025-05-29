@@ -34,6 +34,7 @@ export default function LoginCadastro() {
                 setMensagem(data.error || "Erro ao autenticar.");
             }
         } catch (err) {
+            console.log(err)
             setMensagem("Erro de conexão.");
         } finally {
             setLoading(false);

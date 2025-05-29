@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 interface Resultado {
@@ -89,6 +90,7 @@ export default function AnaliseFraturas() {
                     });
                 }
             } catch (error) {
+                console.log(error)
                 resultadosTemp.push({
                     paciente: nomePaciente,
                     nome: file.name,
@@ -167,7 +169,7 @@ export default function AnaliseFraturas() {
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                             {images.map((img, i) => (
                                 <div key={i} className="border rounded overflow-hidden flex items-center justify-center h-40 bg-gray-50">
-                                    <img src={img.preview} alt={`Prévia ${i}`} className="max-h-full max-w-full object-contain" />
+                                    <Image src={img.preview} alt={`Prévia ${i}`} className="max-h-full max-w-full object-contain" />
                                 </div>
                             ))}
                         </div>
@@ -187,7 +189,7 @@ export default function AnaliseFraturas() {
                                             }`}
                                     >
                                         <div className="w-1/2 bg-gray-100 flex items-center justify-center h-40">
-                                            <img
+                                            <Image
                                                 src={resultado.imagem}
                                                 alt={resultado.nome}
                                                 className="max-h-full max-w-full object-contain"
